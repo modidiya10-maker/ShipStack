@@ -1,12 +1,17 @@
-name: ShipStack CI
+name: ShipStack CI/CD
 
 on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   test:
@@ -29,3 +34,39 @@ jobs:
       - name: Run tests
         run: |
           python -m pytest
+
+  deploy:
+    name: Deploy infrastructure
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+        - name: Debug OIDC claims
+        uses: github/actions-oidc-debugger@main
+        with:
+          audience: sts.amazonaws.com
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::019476883639:role/ShipStack-GitHubActions
+          aws-region: ap-south-1
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: infrastructure
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: infrastructure
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: infrastructure
+        run: terraform plan
