@@ -1,44 +1,31 @@
 # ShipStack
 
-**Infrastructure as Code deployment of a Python web service on AWS.**
+> **Infrastructure-as-Code deployment pipeline for a Python web service on AWS**
 
-ShipStack provisions AWS infrastructure with Terraform and deploys a Flask application to an EC2 instance. The application is automatically configured during instance startup using EC2 user data.
+ShipStack is a deployment-focused project that provisions AWS infrastructure with Terraform and automatically deploys a Flask API to an EC2 instance.
 
-[![CI](https://github.com/modidiya10-maker/ShipStack/actions/workflows/ci.yml/badge.svg)](https://github.com/modidiya10-maker/ShipStack/actions)
+The project demonstrates the complete path from application source code to a publicly accessible cloud service:
+
+$$\text{Code} \longrightarrow \text{Tests} \longrightarrow \text{CI} \longrightarrow \text{Infrastructure} \longrightarrow \text{Server Provisioning} \longrightarrow \text{Application}$$
 
 ---
 
-## Overview
+## 🚀 Live Deployment
 
-ShipStack demonstrates a reproducible cloud deployment workflow:
+* **Service:** ShipStack
+* **Platform:** AWS EC2
+* **Region:** `ap-south-1`
 
-**Python Application → Automated Tests → GitHub Actions → Terraform → AWS → Running Service**
+### Health Check
+`GET /`
 
-Instead of manually configuring an EC2 server, the required AWS infrastructure is defined as code and the application server configures itself during startup.
-
-### What it demonstrates
-
-- Infrastructure as Code with Terraform
-- AWS VPC networking
-- EC2 provisioning
-- Automated server bootstrap
-- Flask application deployment
-- Automated testing with pytest
-- Continuous Integration with GitHub Actions
-- Git and GitHub based workflow
-
-Why ShipStack?
-
-Deploying a Python application manually involves configuring a server, networking, security rules, dependencies, and the application runtime.
-
-ShipStack automates that process.
-
-Instead of manually creating infrastructure through the AWS Console, Terraform defines the infrastructure as code. When the EC2 instance starts, a bootstrap script installs the required software, retrieves the application from GitHub, installs dependencies, and starts the service with Gunicorn.
-
-The result is a repeatable deployment process rather than a manually configured server.
-
-Architecture
-                         GitHub
+**Response:**
+```json
+{
+  "message": "Application is running",
+  "service": "ShipStack"
+}
+🎯 Why ShipStack?Deploying a Python application manually involves configuring a server, networking, security rules, dependencies, and the application runtime. ShipStack automates that process.Instead of manually creating infrastructure through the AWS Console, Terraform defines the infrastructure as code. When the EC2 instance starts, a bootstrap script installs the required software, retrieves the application from GitHub, installs dependencies, and starts the service with Gunicorn.The result is a repeatable, declarative deployment process rather than a fragile, manually configured server.🏗️ ArchitecturePlaintext                         GitHub
                            │
                     Application Code
                            │
@@ -76,48 +63,7 @@ Architecture
                        Flask API
                            │
                         HTTP :80
-What is Provisioned?
-
-Terraform currently manages:
-
-Resource	Purpose
-VPC	Isolated AWS network
-Public Subnet	Network segment for the application server
-Internet Gateway	Internet connectivity
-Route Table	Routes public traffic
-Route Association	Associates subnet with public routing
-Security Group	Controls inbound/outbound traffic
-EC2 Instance	Hosts the application
-
-The infrastructure is defined in:
-
-infrastructure/main.tf
-Application Stack
-Python
-└── Flask
-    └── Gunicorn
-
-Testing:
-
-pytest
-
-Infrastructure:
-
-Terraform
-└── AWS
-    ├── VPC
-    ├── Subnet
-    ├── Internet Gateway
-    ├── Route Table
-    ├── Security Group
-    └── EC2
-
-CI:
-
-GitHub Actions
-└── pytest
-Repository Structure
-ShipStack/
+What is Provisioned?Terraform currently manages the following core AWS components (defined in infrastructure/main.tf):ResourcePurposeVPCIsolated AWS cloud networkPublic SubnetNetwork segment hosting the application serverInternet GatewayEnables inbound/outbound internet accessRoute TableDirects public subnet traffic to the Internet GatewayRoute AssociationBinds the subnet to the public routing tableSecurity GroupControls inbound/outbound firewalled network trafficEC2 InstanceUbuntu Linux server hosting the application stack🛠️ Application StackApplication: Python, Flask, GunicornTesting: pytestInfrastructure: Terraform, AWS (VPC, Subnet, IGW, Route Table, Security Group, EC2)Continuous Integration: GitHub Actions📁 Repository StructurePlaintextShipStack/
 │
 ├── .github/
 │   └── workflows/
@@ -138,132 +84,25 @@ ShipStack/
 ├── .gitignore
 ├── LICENSE
 └── README.md
-Local Development
-Requirements
-Python 3
-Git
-Terraform
-AWS CLI
-Clone
-git clone https://github.com/modidiya10-maker/ShipStack.git
+💻 Local DevelopmentPrerequisitesPython 3.xGitTerraformAWS CLI configured with valid credentials1. Clone & Set UpBashgit clone [https://github.com/modidiya10-maker/ShipStack.git](https://github.com/modidiya10-maker/ShipStack.git)
 cd ShipStack
-Install dependencies
-python -m pip install -r app/requirements.txt
-Run tests
-python -m pytest
-Run locally
-python app/app.py
-Infrastructure Deployment
+2. Install DependenciesBashpython -m pip install -r app/requirements.txt
+3. Run TestsBashpython -m pytest
+4. Run Application LocallyBashpython app/app.py
+☁️ Infrastructure DeploymentTerraform manages the cloud lifecycle.Bash# Navigate to infrastructure directory
+cd infrastructure
 
-Terraform manages the AWS environment.
-
-Initialize:
-
+# Initialize provider plugins
 terraform init
 
-Validate:
-
+# Validate configuration syntax
 terraform validate
 
-Preview infrastructure changes:
-
+# Preview changes before applying
 terraform plan
 
-Provision:
-
+# Provision resources on AWS
 terraform apply
-
-Destroy when finished:
-
-terraform destroy
-
-Note: AWS resources may incur charges. Destroy the infrastructure when it is no longer required.
-
-Deployment Automation
-
-The EC2 instance uses user data during initialization.
-
-The bootstrap process:
-
-EC2 starts
-   ↓
-Install Python + Git
-   ↓
-Clone ShipStack
-   ↓
-Create virtual environment
-   ↓
-Install requirements
-   ↓
-Start Gunicorn
-   ↓
-Expose Flask API on port 80
-
-This removes the need to manually configure the application server after provisioning.
-
-CI Pipeline
-
-Every repository change is checked through GitHub Actions.
-
-Push
-  ↓
-GitHub Actions
-  ↓
-Install dependencies
-  ↓
-Run pytest
-  ↓
-Pass / Fail
-
-The CI workflow is located at:
-
-.github/workflows/ci.yml
-Testing
-
-The project currently contains automated tests for the Flask application.
-
-Run:
-
-python -m pytest
-
-Expected result:
-
-3 passed
-Security
-
-The deployed security group currently exposes:
-
-HTTP  → TCP 80 → Internet
-
-SSH is not publicly exposed.
-
-Terraform state and local Terraform working files are excluded from Git to avoid committing infrastructure state into the repository.
-
-AWS credentials are not stored in the source code.
-
-Current Status
-
-Deployment: Working
-Infrastructure: Terraform-managed
-Application: Running on AWS EC2
-CI: Configured
-Tests: Passing
-
-Roadmap
-
-ShipStack is intentionally kept small enough to understand while leaving room for future infrastructure improvements.
-
-Potential next iterations:
-
- HTTPS / TLS
- Domain-based access
- Docker-based deployment
- Remote Terraform state
- CI/CD deployment workflow
- Application logging
- CloudWatch monitoring
- Load balancing
- Auto Scaling
-License
-
-This project is licensed under the MIT License. See LICENSE for details.
+⚠️ Note: AWS resources incur charges. Run terraform destroy when finished to tear down resources.⚙️ Deployment AutomationThe EC2 instance uses AWS User Data during initial boot to automate server configuration:$$\text{EC2 Boots} \rightarrow \text{Install Python \& Git} \rightarrow \text{Clone ShipStack} \rightarrow \text{VirtualEnv Setup} \rightarrow \text{Install Requirements} \rightarrow \text{Launch Gunicorn (Port 80)}$$This eliminates the need for manual SSH access or post-provisioning server execution.🧪 CI Pipeline & TestingEvery commit pushed to the repository triggers a automated run via GitHub Actions (.github/workflows/ci.yml).PlaintextPush → GitHub Actions → Install Dependencies → Run pytest → Pass/Fail Status
+Run tests manually anytime:Bashpython -m pytest
+Expected Output: 3 passed🔒 SecurityNetwork Boundary: The Security Group restricts inbound traffic strictly to HTTP on TCP 80. SSH (TCP 22) is disabled to minimize attack surface.State & Secrets: Terraform state files (*.tfstate), cache folders, and local environment files are explicitly excluded via .gitignore.Credentials: No AWS access keys or secrets are stored in source code; deployments rely on local execution profiles and GitHub secrets.📊 Current StatusComponentStatusDeployment✅ FunctionalInfrastructure✅ Terraform-managedApplication✅ Running on AWS EC2CI Pipeline✅ ActiveTests✅ Passing🗺️ RoadmapShipStack is intentionally kept minimal to demonstrate core IaC concepts clearly while allowing space for future architectural expansion:[ ] HTTPS / TLS configuration via Let's Encrypt[ ] Domain routing with AWS Route 53[ ] Containerized runtime using Docker & Amazon ECR[ ] Remote Terraform state backend (AWS S3 + DynamoDB)[ ] Full CD pipeline to automatically trigger terraform apply on main branch merges[ ] Centralized logging and monitoring via Amazon CloudWatch[ ] High Availability using Application Load Balancers (ALB) and Auto Scaling Groups📜 LicenseDistributed under the MIT License. See LICENSE for more information.
