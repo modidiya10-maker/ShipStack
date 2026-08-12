@@ -1,5 +1,9 @@
 # ShipStack
 
+[![CI/CD](https://github.com/modidiya10-maker/ShipStack/actions/workflows/ci.yml/badge.svg)](https://github.com/modidiya10-maker/ShipStack/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/modidiya10-maker/ShipStack?label=release)](https://github.com/modidiya10-maker/ShipStack/releases)
+[![License](https://img.shields.io/github/license/modidiya10-maker/ShipStack)](https://github.com/modidiya10-maker/ShipStack/blob/main/LICENSE)
+
 ### Infrastructure-as-Code CI/CD pipeline for deploying a Python web service on AWS
 
 ShipStack is a deployment-focused DevOps project that automates the path from application source code to a publicly accessible Flask service running on AWS EC2.
