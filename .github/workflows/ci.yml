@@ -80,3 +80,42 @@ jobs:
         with:
           name: terraform-plan
           path: infrastructure/tfplan
+          retention-days: 1
+
+  apply:
+    name: Terraform Apply
+    needs: deploy
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::019476883639:role/ShipStack-GitHubActions
+          aws-region: ap-south-1
+
+      - name: Download Terraform plan
+        uses: actions/download-artifact@v5
+        with:
+          name: terraform-plan
+          path: infrastructure
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4.0.1
+        with:
+          terraform_version: "1.15.5"
+
+      - name: Terraform Init
+        working-directory: infrastructure
+        run: terraform init -input=false
+
+      - name: Terraform Apply
+        working-directory: infrastructure
+        run: terraform apply -input=false tfplan
