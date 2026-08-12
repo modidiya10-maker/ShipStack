@@ -36,7 +36,7 @@ jobs:
         run: |
           python -m pytest
 
-    deploy:
+  deploy:
     name: Deploy infrastructure
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
