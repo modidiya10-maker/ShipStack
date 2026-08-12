@@ -9,6 +9,8 @@ on:
     branches:
       - main
 
+  workflow_dispatch:
+
 permissions:
   id-token: write
   contents: read
@@ -37,9 +39,9 @@ jobs:
           python -m pytest
 
   deploy:
-    name: Deploy infrastructure
+    name: Terraform Plan
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
@@ -63,7 +65,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: infrastructure
-        run: terraform init
+        run: terraform init -input=false
 
       - name: Terraform Validate
         working-directory: infrastructure
@@ -71,4 +73,10 @@ jobs:
 
       - name: Terraform Plan
         working-directory: infrastructure
-        run: terraform plan
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Upload Terraform plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: infrastructure/tfplan
