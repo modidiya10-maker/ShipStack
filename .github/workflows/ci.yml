@@ -36,7 +36,7 @@ jobs:
         run: |
           python -m pytest
 
-  deploy:
+    deploy:
     name: Deploy infrastructure
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -45,11 +45,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-
-      - name: Debug OIDC claims
-        uses: github/actions-oidc-debugger@main
-        with:
-          audience: sts.amazonaws.com
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
